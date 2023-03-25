@@ -10,7 +10,7 @@ Para utilizar esta aplicación, necesitará tener Python 3 y Django instalados e
 
 Clone este repositorio
 
-Acceda al directorio del proyecto: cd parqueadero-universitario
+Acceda al directorio del proyecto: cd Parkify
 
 Cree un entorno virtual: python3 -m venv env
 
