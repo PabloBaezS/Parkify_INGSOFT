@@ -10,25 +10,10 @@
                 <div class="card-header">
                 </div>
                 <div class="card-body">
-                    <form method="POST">
+                    <form method="POST" action="{% url 'registro_usuario' %}">
                         {% csrf_token %}
                         <h1 style="color: rgb(225,80,91)">Registro</h1>
-                        <div class="form-group">
-                            <label>Nombre de usuario</label>
-                            <input type="text" name="username" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Correo electrónico institucional</label>
-                            <input type="email" name="email" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Contraseña</label>
-                            <input type="password" name="password1" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Confirmar contraseña</label>
-                            <input type="password" name="password2" class="form-control" required>
-                        </div>
+                        {{ form.as_p }}
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary">Registrar</button>
                         </div>

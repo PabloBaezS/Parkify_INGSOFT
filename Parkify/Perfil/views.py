@@ -1,75 +1,56 @@
 # Importaciones necesarias
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
-from .forms import RegistroForm, VehiculoForm
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+from .forms import SignUpForm, VehiculoForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from .models import Usuario
-User = get_user_model()
+from .models import Usuario\
 
-# Funciones necesarias para el funcionamiento junto con el FrontEnd
-def login_usuario(request):
+
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            user = form.save()
+            login(request, user)
+            return render(request,'dashboard.html')
+    else:
+        form = SignUpForm()
+    return render(request, 'registro.html', {'form': form})
+
+@login_required
+def logoutAccount(request):
+    logout(request)
+    return render(request, 'index.html')
+
+
+@ensure_csrf_cookie
+def loginAccount(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            return render(request, 'dashboard.html')
         else:
-            error_message = "Invalid username or password"
+            error_message = "Invalid username or password."
+            return render(request, 'login.html', {'error_message': error_message})
     else:
-        error_message = None
-    return render(request, 'login.html', {'error_message': error_message})
-
-
-
-
-def registro_usuario(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        if password1 == password2:
-            if Usuario.objects.filter(nombre=username).exists():
-                messages.error(request, 'El nombre de usuario ya está en uso')
-                return redirect('registro_usuario')
-            else:
-                if email.endswith('@eafit.edu.co'):
-                    usuario = Usuario.objects.create(nombre=username, correo=email, contrasena=password1)
-                    usuario.save()
-                    usuario.idUsuario = usuario.pk
-                    usuario.save()
-                    # Inicia sesión al usuario automáticamente después del registro
-                    usuario = authenticate(request, username=username, password=password1)
-                    login(request, usuario)
-                    messages.success(request, 'Registro completado exitosamente')
-                    return redirect('vehiculo')
-                else:
-                    messages.error(request, 'El correo electrónico no es institucional')
-                    return redirect('registro_usuario')
-        else:
-            messages.error(request, 'Las contraseñas no coinciden')
-            return redirect('registro_usuario')
-    return render(request, 'registro.html')
-
+        return render(request, 'login.html')
 
 
 def dashboard_usuario(request):
     # Obtener el usuario actual desde la base de datos
-    #user = Usuario.objects.get(pk=request.user.pk)
+    user = Usuario.objects.get(pk=request.user.pk)
 
     # Renderizar la plantilla con la información del usuario
     return render(request, 'dashboard.html')
-
-
-def logout_usuario(request):
-    logout(request)
-    messages.success(request, 'Sesión cerrada exitosamente')
-    return redirect('login_usuario')
 
 
 def index(request):
